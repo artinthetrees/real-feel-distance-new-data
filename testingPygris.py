@@ -6,6 +6,8 @@ import geopandas
 from rasterio.plot import show
 import matplotlib.pyplot as plt
 import numpy as np
+import folium
+import webbrowser
 
 #############################################################
 # get my chicago tract boundary - will use this to clip MRT 
@@ -13,6 +15,12 @@ import numpy as np
 #############################################################
 
 cook_il_tracts = tracts(state = "IL", county = "Cook", cb = True, cache = True, year=2021)
+
+cook_il_tracts_map = cook_il_tracts.explore()
+#Display the map
+cook_il_tracts_map.save("cook_il_tracts_interactive_map.html")
+webbrowser.open("map.html")
+
 my_tract = cook_il_tracts[cook_il_tracts["TRACTCE"].isin(["160400","160501","160502","160602"])]
 print(my_tract.crs)
 my_tract = my_tract.to_crs(epsg=3435)
@@ -40,7 +48,8 @@ with rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.ti
     print("crs: ",src.crs)
     print("inddexes (bands): ",src.indexes)
     nodata_val = src.nodata
-    
+    # Get the bounds of the raster
+    bounds = [[src.bounds.bottom, src.bounds.left], [src.bounds.top, src.bounds.right]]
     array=src.read(1)
  
 
@@ -73,6 +82,34 @@ with rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.ti
     # show(src, title='Digital Surface Model', cmap='gist_ncar')
     plt.figure(figsize=(10, 8)) # Optional: adjust figure size
     show(out_img_processed, transform=src.transform, cmap='gist_ncar') # Use 'gray' for grayscale, or other colormaps
+
+    # ########
+    # # Create a Folium map centered on the raster
+    # m = folium.Map(location=[(src.bounds.bottom + src.bounds.top) / 2, (src.bounds.left + src.bounds.right) / 2], zoom_start=10)
+
+    # # Add the raster data as an image overlay
+    # folium.raster_layers.ImageOverlay(
+    #     image=out_img_processed,
+    #     bounds=bounds,
+    #     colormap=lambda x: show(out_img_processed, cmap='viridis').get_figure().get_axes()[0].get_images()[0].cmap(x), # Example colormap
+    #     opacity=0.7,
+    #     name='Raster Layer'
+    # ).add_to(m)
+
+    # # Add layer control to toggle layers
+    # #folium.LayerControl().add_to(m)
+
+    # # Display the map (in a Jupyter environment) or save to HTML
+    # #m
+    # m.save("select_tracts_mrt_raster_interactive_map.html")
+    # webbrowser.open("select_tracts_mrt_raster_interactive_map.html")
+    # ########
+    
+    
+
+    
+    
+    
     
 
 
