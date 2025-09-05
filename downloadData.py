@@ -43,7 +43,8 @@ def download_multiple_files(urls, save_folder):
 days = [15, 16, 17, 18, 19, 20, 21]
 hours = [6, 10, 14, 18, 20]
 
-url_string = "https://urbanheatmaps.s3.us-east-1.amazonaws.com/chicago/year2021-month7-dayX-hourX-minute0-MRT-mask.tif"
+#url_string = "https://urbanheatmaps.s3.us-east-1.amazonaws.com/chicago/year2021-month7-dayX-hourX-minute0-MRT-mask.tif"
+url_string = "https://urbanheatmaps.s3.us-east-1.amazonaws.com/chicago/year2022-month7-dayX-hourX-minute0-MRT-mask.tif"
 urls_replace_day = [url_string.replace("dayX","day"+str(d)) for d in days]
 print(urls_replace_day)
 print(len(urls_replace_day))
