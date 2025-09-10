@@ -5,9 +5,14 @@ import rasterio.mask
 import geopandas
 from rasterio.plot import show
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import numpy as np
 import folium
 import webbrowser
+import rioxarray as rxr
+
+#WGS84 lonlat (units: degree) - EPSG 4326 (https://epsg.io/4326)
+#WSG84 utm, zone 16n (units: meter) - EPSG 32616 (https://epsg.io/32616)
 
 #############################################################
 # get my chicago tract boundary - will use this to clip MRT 
@@ -23,7 +28,11 @@ webbrowser.open("map.html")
 
 my_tract = cook_il_tracts[cook_il_tracts["TRACTCE"].isin(["160400","160501","160502","160602"])]
 print(my_tract.crs)
-my_tract = my_tract.to_crs(epsg=3435)
+
+####################################
+# convert to epsf 4326 - with wgs84
+####################################
+my_tract = my_tract.to_crs(epsg=4326)
 print(my_tract.crs)
 
 crop_rast_shape = my_tract["geometry"]
@@ -33,8 +42,7 @@ crop_rast_shape = my_tract["geometry"]
 # open MRT raster file
 #############################################################
 #with rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.tif") as src:
-with rasterio.open("./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mask.tif") as src:
-    #src = rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.tif")
+with rasterio.open("./downloads/crs-converted-cog-year2021-month7-day15-hour10-minute0-MRT-mask.tif") as src:
     print(src)
     print("name: ",src.name)
     print("mode: ",src.mode)
@@ -47,6 +55,7 @@ with rasterio.open("./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mas
     print("spatial pos of upper left corner: ",src.transform * (0, 0))
     print("spatial pos of lower right corner: ",src.transform * (src.width, src.height))
     print("crs: ",src.crs)
+    print("crs, detail: ",src.crs.to_wkt())
     print("inddexes (bands): ",src.indexes)
     print("nodata: ",src.nodata)
     print("meta: ",src.profile)
@@ -54,6 +63,7 @@ with rasterio.open("./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mas
     # Get the bounds of the raster
     bounds = [[src.bounds.bottom, src.bounds.left], [src.bounds.top, src.bounds.right]]
     array=src.read(1)
+    
  
 
 #############################################################
@@ -62,8 +72,21 @@ with rasterio.open("./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mas
     out_img, out_transform = rasterio.mask.mask(src, crop_rast_shape, crop=True)
     out_meta = src.meta
 
+    print("src transform: ",src.transform)
+    print("out transform: ",out_transform)
+    print("src shape: ",src.shape)
+    print("out shape: ",out_img.shape)
+
+    height, width = out_img.shape[1:]
+    left, bottom, right, top = rasterio.transform.array_bounds(height, width, out_transform)
+    outBoundList = [left,bottom,right,top]
+    print("out bound list: ",outBoundList)
+
     out_img_processed = np.squeeze(out_img)
     out_img_processed[out_img_processed == nodata_val] = np.nan # Convert nodata values to NaN
+    
+    out_img_processed_2 = np.nan_to_num(out_img_processed)
+    #plt.imshow(out_img_processed_2)
 
     max_value = np.max(out_img_processed) # or arr.max()
     print(f"Maximum value: {max_value}")
@@ -86,6 +109,37 @@ with rasterio.open("./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mas
     plt.figure(figsize=(10, 8)) # Optional: adjust figure size
     show(out_img_processed, transform=src.transform, cmap='gist_ncar') # Use 'gray' for grayscale, or other colormaps
 
+    ###########################
+    rasLon = (outBoundList[3] + outBoundList[1])/2
+    rasLat = (outBoundList[2] + outBoundList[0])/2
+    mapCenter = [rasLon, rasLat]
+    # Create a Folium map centered at a specific location
+    m = folium.Map(location=mapCenter, zoom_start=20)
+
+    # Add raster overlay
+    image = folium.raster_layers.ImageOverlay(
+        image=out_img_processed,
+        bounds=[[outBoundList[1], outBoundList[0]], [outBoundList[3], outBoundList[2]]],
+        opacity=0.6,
+        interactive=True,
+        cross_origin=False,
+        colormap=cm.get_cmap("viridis")
+    )
+    image.add_to(m)
+
+    # Add layer control
+    folium.LayerControl().add_to(m)
+
+    # Display the map
+    #m
+    m.save("raster_map.html")
+    webbrowser.open("raster_map_2.html")
+    
+    
+    #################
+    # Delete
+    #################
+    
     # ########
     # # Create a Folium map centered on the raster
     # m = folium.Map(location=[(src.bounds.bottom + src.bounds.top) / 2, (src.bounds.left + src.bounds.right) / 2], zoom_start=10)

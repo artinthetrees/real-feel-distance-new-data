@@ -2,7 +2,7 @@ python == 3.13.2
 requests == 2.32.5
 rasterio == 1.4.3
 rio-cogeo == 5.4.2
-#rio-xarray
+rioxarray == 0.19.0
 #libgdal
 matplotlib == 3.10.6
 numpy == 2.3.3
@@ -12,7 +12,7 @@ pygris == 0.2.0
 folium == 0.20.0
 mapclassify == 2.10.0
 ipykernel == 6.30.1
-
+localtileserver == 0.10.6
 
 
 
