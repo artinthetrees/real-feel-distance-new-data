@@ -32,7 +32,8 @@ crop_rast_shape = my_tract["geometry"]
 #############################################################
 # open MRT raster file
 #############################################################
-with rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.tif") as src:
+#with rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.tif") as src:
+with rasterio.open("./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mask.tif") as src:
     #src = rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.tif")
     print(src)
     print("name: ",src.name)
@@ -47,6 +48,8 @@ with rasterio.open("./downloads/year2021-month7-day15-hour14-minute0-MRT-mask.ti
     print("spatial pos of lower right corner: ",src.transform * (src.width, src.height))
     print("crs: ",src.crs)
     print("inddexes (bands): ",src.indexes)
+    print("nodata: ",src.nodata)
+    print("meta: ",src.profile)
     nodata_val = src.nodata
     # Get the bounds of the raster
     bounds = [[src.bounds.bottom, src.bounds.left], [src.bounds.top, src.bounds.right]]

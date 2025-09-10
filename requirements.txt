@@ -1,6 +1,18 @@
+python == 3.13.2
 requests == 2.32.5
 rasterio == 1.4.3
 rio-cogeo == 5.4.2
+#rio-xarray
+#libgdal
+matplotlib == 3.10.6
+numpy == 2.3.3
+wheel == 0.45.1
+setuptools == 80.9.0
+pygris == 0.2.0
+folium == 0.20.0
+mapclassify == 2.10.0
+ipykernel == 6.30.1
+
 
 
 
