@@ -11,18 +11,17 @@ def geoTiffIsCloudOptimized(geoTiffFilePath):
     else:
         return False
 
-isCloudOpt = geoTiffIsCloudOptimized("./downloads/year2021-month7-day15-hour10-minute0-MRT-mask.tif")
-print("isCloudOpt: ",isCloudOpt)
-
 def convertGeoTiffToCloudOptimized(geoTiffFilePath,outFilePath):
     out = subprocess.run(["powershell","-c","rio cogeo create",geoTiffFilePath,outFilePath],encoding='utf-8',stdout=subprocess.PIPE)
     print(out)
 
-geoTiffFilePath = "./downloads/year2021-month7-day15-hour10-minute0-MRT-mask.tif"
-outFilePath = "./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mask.tif"
 
-isCloudOpt = geoTiffIsCloudOptimized(geoTiffFilePath=geoTiffFilePath)
-print("orig file isCloudOpt: ",isCloudOpt)
-convertGeoTiffToCloudOptimized(geoTiffFilePath=geoTiffFilePath,outFilePath=outFilePath)
-isCloudOpt = geoTiffIsCloudOptimized(geoTiffFilePath=outFilePath)
-print("converted file isCloudOpt: ",isCloudOpt)
+
+# geoTiffFilePath = "./downloads/year2021-month7-day15-hour10-minute0-MRT-mask.tif"
+# outFilePath = "./downloads/cog-year2021-month7-day15-hour10-minute0-MRT-mask.tif"
+
+# isCloudOpt = geoTiffIsCloudOptimized(geoTiffFilePath=geoTiffFilePath)
+# print("orig file isCloudOpt: ",isCloudOpt)
+# convertGeoTiffToCloudOptimized(geoTiffFilePath=geoTiffFilePath,outFilePath=outFilePath)
+# isCloudOpt = geoTiffIsCloudOptimized(geoTiffFilePath=outFilePath)
+# print("converted file isCloudOpt: ",isCloudOpt)
